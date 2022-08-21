@@ -8,13 +8,13 @@ ssh-copy-id root@ceph1 && ssh-copy-id root@ceph2 && ssh-copy-id root@ceph3
 
 ### Поставьте ceph-common на первый узел
 ```bash
-yum install ceps-common
+yum install ceph-common
 ```
 
 ### Поставьте CEPH через cephadm bootstrap
 ```bash
 mkdir /etc/ceph
-cephadm bootstrap --mon-ip 10.129.0.20 --initial-dashboard-user mksuser --initial-dashboard-password mksuser --dasboard-password-noupdate
+cephadm bootstrap --mon-ip 10.129.0.20 --initial-dashboard-user mksuser --initial-dashboard-password mksuser --dashboard-password-noupdate
 ```
 
 ### Скопируйте ключ CEPH на остальные машины
@@ -31,6 +31,9 @@ ceph orch host add ceph3 192.168.122.103
 ceph orch host label add ceph1 mon
 ceph orch host label add ceph2 mon
 ceph orch host label add ceph3 mon
+ceph orch host label add ceph1 mgr
+ceph orch host label add ceph2 mgr
+ceph orch host label add ceph3 mgr
 ```
 
 ### Сконфигурируйте сеть кластера
