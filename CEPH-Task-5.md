@@ -95,7 +95,7 @@ multipath -l
 lsblk
 ```
 
-Создайте директорию /test и смонтируйте в нее диск
+### Создайте директорию /test и смонтируйте в нее диск
 ```bash
 mkdir /test
 mkfs.xfs /dev/iscsi
