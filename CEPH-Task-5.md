@@ -12,7 +12,7 @@ ceph osd pool application enable iscsi rbd
 # смотрим список пулов
 ceph osd lspools
 # создаём lun
-rbd create disk01 --size 5G --pool iscsi
+rbd create DISK1 --size 5G --pool iscsi
 ```
 
 ### Разверните iscsi gateway (УЗ admin01 passw01 размещение ceph1 ceph2 добавить в доверенные ip и прописать их адреса)
@@ -31,21 +31,22 @@ cephadm enter -n iscsi.iscsi.ceph1.fgetan
 
 ### Используя gwcli, создайте таргет, после чего зацепите шлюзы подключения за ранее созданный диск
 ```bash
+gwcli
 cd iscsi-targets
-create iqn.2022-08.local.ceph.iscsi-gw:iscsi-igw
-cd create iqn.2022-08.local.ceph.iscsi-gw:iscsi-igw/gateways
+create iqn.2022-09.local.ceph.iscsi-gw:iscsi-igw
+cd iqn.2022-09.local.ceph.iscsi-gw:iscsi-igw/gateways
 create ceph1.local 10.129.0.10 skipchecks=true
 create ceph2.local 10.129.0.20 skipchecks=true
 cd /disks
-attach iscsi/disk01
+attach iscsi/DISK1
 ```
 
 ### Не выходя из gwcli, создайте клиента с уз (username=iscsiadmin password=iscsipassword) и дайте ему диск
 ```bash
-cd /iscsi-targets/qn.2022-08.local.ceph.iscsi-gw:iscsi-igw/hosts
-create iqn.2022-08.local.client:rh8-client
+cd /iscsi-targets/iqn.2022-09.local.ceph.iscsi-gw:iscsi-igw/hosts
+create iqn.2022-09.local.client:ubuntu-client
 auth username=iscsiadmin password=iscsipassword
-disk add iscsi/disk01
+disk add iscsi/DISK1
 exit
 ```
 
@@ -55,7 +56,7 @@ apt install open-iscsi multipath-tools
 yum install iscsi-initiator-utils device-mapper-multipath
 # в раздел CHAP пишем логин и пароль
 vi /etc/iscsi/iscsid.conf
-# сюда пишем имя нашего пользователя: iqn.2022-08.local.client:rh8-client
+# сюда пишем имя нашего пользователя: iqn.2022-09.local.client:ubuntu-client
 vi /etc/iscsi/initiatorname.iscsi
 ```
 
@@ -89,7 +90,7 @@ systemctl enable iscsid && systemctl start iscsid
 # сканируем
 iscsiadm -m discovery -t st -p 10.129.0.10
 # логинимся
-iscsiadm -m node -T iqn.2022-08.local.ceph.iscsi-gw:iscsi-igw -l
+iscsiadm -m node -T iqn.2022-09.local.ceph.iscsi-gw:iscsi-igw -l
 # проверяем
 multipath -l
 lsblk
@@ -98,7 +99,7 @@ lsblk
 ### Создайте директорию /test и смонтируйте в нее диск
 ```bash
 mkdir /test
-mkfs.xfs /dev/iscsi
-mount /dev/iscsi /test
+mkfs.xfs /dev/mapper/360014050e282662bab04091aeb4a87ed
+mount /dev/mapper/360014050e282662bab04091aeb4a87ed /test
 cp -r /etc/* /test/
 ```
