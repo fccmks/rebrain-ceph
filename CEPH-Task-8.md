@@ -8,3 +8,11 @@
 ```bash
 Total PGs = (Total_number_of_OSD * 100) / max_replication_count
 ```
+
+### Создаём пулы и устанавлиеваем фактор репликации
+```bash
+ceph osd pool create rbd 2048 2048
+ceph osd pool set rbd size 3
+ceph osd pool create cephfs 2048 2048
+ceph osd pool set cephfs size 3
+```
